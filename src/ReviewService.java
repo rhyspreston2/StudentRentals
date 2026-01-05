@@ -11,9 +11,6 @@ public class ReviewService {
         this.bookingService = bookingService;
     }
 
-    /**
-     * Student leaves a review after a booking period has ended.
-     */
     public Review leaveReview(Student student,
                               long bookingId,
                               int rating,
@@ -56,8 +53,6 @@ public class ReviewService {
 
         // Store review
         system.addReview(review);
-
-        // Update property rating summary (O(1))
         property.applyReview(review);
 
         return review;

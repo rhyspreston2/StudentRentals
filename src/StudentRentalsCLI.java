@@ -2,16 +2,18 @@ import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class StudentRentalsCLI {
 
     private final StudentRentalsSystem system = new StudentRentalsSystem();
+
     private final SearchService searchService = new SearchService(system);
     private final BookingService bookingService = new BookingService(system);
     private final ReviewService reviewService = new ReviewService(system, bookingService);
     private final AdminService adminService = new AdminService(system);
+    private final ListingService listingService = new ListingService(system);
 
-    // Demo users (selected via menu)
     private Student demoStudent;
     private Homeowner demoHomeowner;
     private Admin demoAdmin;
@@ -30,7 +32,6 @@ public class StudentRentalsCLI {
                 System.out.println("1) Continue as Student");
                 System.out.println("2) Continue as Homeowner");
                 System.out.println("3) Continue as Admin");
-                System.out.println("4) Run demo flow (search -> book -> accept -> review)");
                 System.out.println("0) Exit");
                 System.out.print("Choose an option: ");
 
@@ -39,7 +40,6 @@ public class StudentRentalsCLI {
                     case "1" -> studentMenu(sc, demoStudent);
                     case "2" -> homeownerMenu(sc, demoHomeowner);
                     case "3" -> adminMenu(sc, demoAdmin);
-                    case "4" -> demoFlow();
                     case "0" -> running = false;
                     default -> System.out.println("Invalid option.");
                 }
@@ -48,45 +48,15 @@ public class StudentRentalsCLI {
     }
 
     private void seedDemoData() {
-        // Create demo users
-        demoStudent = new Student(system.generateId(), "Alice Student", "alice@uni.ac.uk",
-                "Example University", "S123456", true);
-        demoHomeowner = new Homeowner(system.generateId(), "Bob Homeowner", "bob@home.co.uk");
-        demoAdmin = new Admin(system.generateId(), "Charlie Admin", "admin@studentrentals.co.uk");
+        demoStudent = new Student(system.generateId(), "Rhys Preston", "prestonr@cardiff.ac.uk",
+                "Cardiff University", "C24030492", true);
+        demoHomeowner = new Homeowner(system.generateId(), "Homeowner", "homeowner@example.com");
+        demoAdmin = new Admin(system.generateId(), "CPS Homes", "admin@CPS.co.uk");
 
         system.addUser(demoStudent);
         system.addUser(demoHomeowner);
         system.addUser(demoAdmin);
 
-        // Create demo property + rooms
-        Property p1 = new Property(system.generateId(), demoHomeowner,
-                "12 High Street", "London", "Quiet house near campus");
-        system.addProperty(p1);
-
-        Room r1 = new Room(system.generateId(), p1, RoomType.SINGLE, 650,
-                "Single room with desk",
-                EnumSet.of(Amenity.WIFI, Amenity.DESK, Amenity.BILLS_INCLUDED),
-                new DateRange(LocalDate.now().plusDays(1), LocalDate.now().plusDays(120)));
-        p1.addRoom(r1);
-        system.addRoom(r1);
-
-        Room r2 = new Room(system.generateId(), p1, RoomType.DOUBLE, 850,
-                "Double room, bright and spacious",
-                EnumSet.of(Amenity.WIFI, Amenity.KITCHEN_ACCESS),
-                new DateRange(LocalDate.now().plusDays(10), LocalDate.now().plusDays(200)));
-        p1.addRoom(r2);
-        system.addRoom(r2);
-
-        Property p2 = new Property(system.generateId(), demoHomeowner,
-                "5 River Road", "Manchester", "Great transport links");
-        system.addProperty(p2);
-
-        Room r3 = new Room(system.generateId(), p2, RoomType.SINGLE, 550,
-                "Affordable single room",
-                EnumSet.of(Amenity.WIFI),
-                new DateRange(LocalDate.now().plusDays(3), LocalDate.now().plusDays(90)));
-        p2.addRoom(r3);
-        system.addRoom(r3);
     }
 
     // ---------------- Student Menu ----------------
@@ -184,7 +154,7 @@ public class StudentRentalsCLI {
 
         try {
             bookingService.cancelBooking(student, id);
-            System.out.println("Booking cancelled (if it belonged to you).");
+            System.out.println("Booking cancelled.");
         } catch (Exception e) {
             System.out.println("Cancel failed: " + e.getMessage());
         }
@@ -218,36 +188,260 @@ public class StudentRentalsCLI {
         boolean back = false;
         while (!back) {
             System.out.println("\n--- Homeowner Menu (" + homeowner.getName() + ") ---");
-            System.out.println("1) View booking requests for my rooms");
-            System.out.println("2) Accept booking");
-            System.out.println("3) Reject booking");
-            System.out.println("4) View all my bookings");
+            System.out.println("1) List a new property");
+            System.out.println("2) View my properties/rooms");
+            System.out.println("3) Add a room to one of my properties");
+            System.out.println("4) Update a property");
+            System.out.println("5) Update a room");
+            System.out.println("6) Remove a property");
+            System.out.println("7) Remove a room");
+            System.out.println("8) View booking requests");
+            System.out.println("9) Accept booking");
+            System.out.println("10) Reject booking");
+            System.out.println("11) View all my bookings");
             System.out.println("0) Back");
             System.out.print("Choose: ");
 
             String choice = sc.nextLine().trim();
             switch (choice) {
-                case "1" -> homeownerViewRequests(homeowner);
-                case "2" -> homeownerAccept(sc, homeowner);
-                case "3" -> homeownerReject(sc, homeowner);
-                case "4" -> printBookings(bookingService.getBookingsForHomeowner(homeowner));
+                case "1" -> homeownerAddProperty(sc, homeowner);
+                case "2" -> homeownerViewMyListings(homeowner);
+                case "3" -> homeownerAddRoom(sc, homeowner);
+                case "4" -> homeownerUpdateProperty(sc, homeowner);
+                case "5" -> homeownerUpdateRoom(sc, homeowner);
+                case "6" -> homeownerRemoveProperty(sc, homeowner);
+                case "7" -> homeownerRemoveRoom(sc, homeowner);
+                case "8" -> homeownerViewRequests(homeowner);
+                case "9" -> homeownerAccept(sc, homeowner);
+                case "10" -> homeownerReject(sc, homeowner);
+                case "11" -> printBookings(bookingService.getBookingsForHomeowner(homeowner));
                 case "0" -> back = true;
                 default -> System.out.println("Invalid option.");
             }
         }
     }
 
+    private List<Property> getMyProperties(Homeowner homeowner) {
+        return system.getAllProperties().stream()
+                .filter(p -> p.getOwner().getUserId() == homeowner.getUserId())
+                .toList();
+    }
+
+    private void homeownerAddProperty(Scanner sc, Homeowner homeowner) {
+        System.out.print("Address: ");
+        String address = sc.nextLine().trim();
+
+        System.out.print("City/Area: ");
+        String city = sc.nextLine().trim();
+
+        System.out.print("Description (optional): ");
+        String desc = sc.nextLine().trim();
+
+        try {
+            Property p = listingService.addProperty(homeowner, address, city, desc);
+            System.out.println("Property listed! Property ID: " + p.getPropertyId());
+        } catch (Exception e) {
+            System.out.println("Failed to add property: " + e.getMessage());
+        }
+    }
+
+    private void homeownerViewMyListings(Homeowner homeowner) {
+        List<Property> props = getMyProperties(homeowner);
+        if (props.isEmpty()) {
+            System.out.println("You have no properties yet.");
+            return;
+        }
+
+        System.out.println("\nMy Properties:");
+        for (Property p : props) {
+            System.out.println("Property#" + p.getPropertyId() + " | " + p.getCityOrArea() +
+                    " | " + p.getAddress() + " | Rooms=" + p.getRooms().size() +
+                    " | AvgRating=" + String.format("%.2f", p.getAverageRating()));
+            for (Room r : p.getRooms()) {
+                System.out.println("  - Room#" + r.getRoomId() + " | " + r.getType() +
+                        " | £" + r.getMonthlyRent() +
+                        " | Availability=" + r.getAvailability() +
+                        " | Amenities=" + r.getAmenities());
+            }
+        }
+    }
+
+    private Property chooseProperty(Scanner sc, Homeowner homeowner) {
+        List<Property> props = getMyProperties(homeowner);
+        if (props.isEmpty()) {
+            System.out.println("You have no properties.");
+            return null;
+        }
+
+        System.out.println("\nSelect a property:");
+        for (int i = 0; i < props.size(); i++) {
+            Property p = props.get(i);
+            System.out.println((i + 1) + ") Property#" + p.getPropertyId() + " | " + p.getCityOrArea() + " | " + p.getAddress());
+        }
+
+        System.out.print("Enter number: ");
+        int idx = parseInt(sc.nextLine().trim(), -1);
+        if (idx < 1 || idx > props.size()) return null;
+
+        return props.get(idx - 1);
+    }
+
+    private Room chooseRoom(Scanner sc, Homeowner homeowner) {
+        Property p = chooseProperty(sc, homeowner);
+        if (p == null) return null;
+
+        if (p.getRooms().isEmpty()) {
+            System.out.println("This property has no rooms.");
+            return null;
+        }
+
+        System.out.println("\nSelect a room:");
+        List<Room> rooms = p.getRooms();
+        for (int i = 0; i < rooms.size(); i++) {
+            Room r = rooms.get(i);
+            System.out.println((i + 1) + ") Room#" + r.getRoomId() + " | " + r.getType() + " | £" + r.getMonthlyRent());
+        }
+
+        System.out.print("Enter number: ");
+        int idx = parseInt(sc.nextLine().trim(), -1);
+        if (idx < 1 || idx > rooms.size()) return null;
+
+        return rooms.get(idx - 1);
+    }
+
+    private void homeownerAddRoom(Scanner sc, Homeowner homeowner) {
+        Property property = chooseProperty(sc, homeowner);
+        if (property == null) return;
+
+        System.out.print("Room type (SINGLE/DOUBLE): ");
+        RoomType type = RoomType.valueOf(sc.nextLine().trim().toUpperCase());
+
+        System.out.print("Monthly rent (number): ");
+        int rent = parseInt(sc.nextLine().trim(), -1);
+        if (rent < 0) {
+            System.out.println("Invalid rent.");
+            return;
+        }
+
+        System.out.print("Room description (optional): ");
+        String desc = sc.nextLine().trim();
+
+        System.out.print("Amenities (comma separated, e.g. WIFI,DESK) or blank: ");
+        String amenityLine = sc.nextLine().trim();
+        Set<Amenity> amenities = parseAmenities(amenityLine);
+
+        System.out.print("Available from (YYYY-MM-DD): ");
+        LocalDate from = LocalDate.parse(sc.nextLine().trim());
+
+        System.out.print("Available to (YYYY-MM-DD): ");
+        LocalDate to = LocalDate.parse(sc.nextLine().trim());
+
+        try {
+            DateRange availability = new DateRange(from, to);
+            Room room = listingService.addRoom(homeowner, property, type, rent, desc, amenities, availability);
+            System.out.println("Room added! Room ID: " + room.getRoomId());
+        } catch (Exception e) {
+            System.out.println("Failed to add room: " + e.getMessage());
+        }
+    }
+
+    private void homeownerUpdateProperty(Scanner sc, Homeowner homeowner) {
+        Property property = chooseProperty(sc, homeowner);
+        if (property == null) return;
+
+        System.out.println("Leave blank to keep current value.");
+        System.out.print("New address (current: " + property.getAddress() + "): ");
+        String address = sc.nextLine();
+
+        System.out.print("New city/area (current: " + property.getCityOrArea() + "): ");
+        String city = sc.nextLine();
+
+        System.out.print("New description (current: " + property.getDescription() + "): ");
+        String desc = sc.nextLine();
+
+        try {
+            listingService.updateProperty(homeowner, property.getPropertyId(), address, city, desc);
+            System.out.println("Property updated.");
+        } catch (Exception e) {
+            System.out.println("Update failed: " + e.getMessage());
+        }
+    }
+
+    private void homeownerUpdateRoom(Scanner sc, Homeowner homeowner) {
+        Room room = chooseRoom(sc, homeowner);
+        if (room == null) return;
+
+        System.out.println("Leave blank to keep current value.");
+
+        System.out.print("New monthly rent (current: " + room.getMonthlyRent() + "): ");
+        String rentStr = sc.nextLine().trim();
+        Integer rent = rentStr.isBlank() ? null : parseInt(rentStr, -1);
+
+        System.out.print("New description (current: " + room.getDescription() + "): ");
+        String desc = sc.nextLine();
+        if (desc != null && desc.isBlank()) desc = null; // treat blank as "no change"
+
+        System.out.print("New amenities (comma separated, current: " + room.getAmenities() + "): ");
+        String amenityLine = sc.nextLine().trim();
+        Set<Amenity> amenities = amenityLine.isBlank() ? null : parseAmenities(amenityLine);
+
+        System.out.print("New available from (YYYY-MM-DD) or blank (current: " + room.getAvailability().getStart() + "): ");
+        LocalDate from = parseDateOrNull(sc.nextLine().trim());
+
+        System.out.print("New available to (YYYY-MM-DD) or blank (current: " + room.getAvailability().getEnd() + "): ");
+        LocalDate to = parseDateOrNull(sc.nextLine().trim());
+
+        DateRange newRange = null;
+        if (from != null && to != null) {
+            newRange = new DateRange(from, to);
+        }
+
+        try {
+            listingService.updateRoom(homeowner, room.getRoomId(), rent, desc, amenities, newRange);
+            System.out.println("Room updated.");
+        } catch (Exception e) {
+            System.out.println("Update failed: " + e.getMessage());
+        }
+    }
+
+    private void homeownerRemoveProperty(Scanner sc, Homeowner homeowner) {
+        Property property = chooseProperty(sc, homeowner);
+        if (property == null) return;
+
+        try {
+            listingService.removeProperty(homeowner, property.getPropertyId());
+            System.out.println("Property removed.");
+        } catch (Exception e) {
+            System.out.println("Remove failed: " + e.getMessage());
+        }
+    }
+
+    private void homeownerRemoveRoom(Scanner sc, Homeowner homeowner) {
+        Room room = chooseRoom(sc, homeowner);
+        if (room == null) return;
+
+        try {
+            listingService.removeRoom(homeowner, room.getRoomId());
+            System.out.println("Room removed.");
+        } catch (Exception e) {
+            System.out.println("Remove failed: " + e.getMessage());
+        }
+    }
+
     private void homeownerViewRequests(Homeowner homeowner) {
         List<Booking> bookings = bookingService.getBookingsForHomeowner(homeowner);
         System.out.println("\nRequested bookings:");
+        boolean any = false;
         for (Booking b : bookings) {
             if (b.getStatus() == BookingStatus.REQUESTED) {
+                any = true;
                 System.out.println("Booking#" + b.getBookingId() +
                         " | Room#" + b.getRoom().getRoomId() +
                         " | Student=" + b.getStudent().getName() +
                         " | Period=" + b.getPeriod());
             }
         }
+        if (!any) System.out.println("(none)");
     }
 
     private void homeownerAccept(Scanner sc, Homeowner homeowner) {
@@ -349,41 +543,6 @@ public class StudentRentalsCLI {
         }
     }
 
-    // ---------------- Demo Flow ----------------
-
-    private void demoFlow() {
-        System.out.println("\n--- Demo Flow ---");
-
-        // 1) Student searches for a SINGLE in London
-        DateRange wanted = new DateRange(LocalDate.now().plusDays(2), LocalDate.now().plusDays(30));
-        SearchCriteria criteria = new SearchCriteria("London", 0, 800, wanted, RoomType.SINGLE);
-        List<Room> rooms = searchService.searchRooms(criteria);
-
-        if (rooms.isEmpty()) {
-            System.out.println("No rooms found for demo.");
-            return;
-        }
-
-        Room chosen = rooms.get(0);
-        System.out.println("Student found Room#" + chosen.getRoomId() + " in " + chosen.getProperty().getCityOrArea());
-
-        // 2) Student requests booking
-        Booking booking = bookingService.requestBooking(demoStudent, chosen, wanted);
-        System.out.println("Booking requested: #" + booking.getBookingId() + " status=" + booking.getStatus());
-
-        // 3) Homeowner accepts
-        bookingService.acceptBooking(demoHomeowner, booking.getBookingId());
-        System.out.println("Homeowner accepted booking. status=" + booking.getStatus());
-
-        // 4) Fake the booking ended for demo review (set wanted end in past is messy),
-        // so just inform the user how review works in real usage.
-        System.out.println("NOTE: Reviews require booking end date to have passed.");
-        System.out.println("To test review: make a booking whose end date is before today.");
-
-        System.out.println("--- End Demo Flow ---");
-    }
-
-    // ---------------- Helpers ----------------
 
     private void printBookings(List<Booking> bookings) {
         if (bookings.isEmpty()) {
@@ -427,5 +586,22 @@ public class StudentRentalsCLI {
         if (s == null || s.isBlank()) return null;
         try { return RoomType.valueOf(s.toUpperCase()); }
         catch (Exception e) { return null; }
+    }
+
+    private Set<Amenity> parseAmenities(String line) {
+        if (line == null || line.isBlank()) return EnumSet.noneOf(Amenity.class);
+
+        EnumSet<Amenity> set = EnumSet.noneOf(Amenity.class);
+        String[] parts = line.split(",");
+        for (String p : parts) {
+            String token = p.trim();
+            if (token.isEmpty()) continue;
+            try {
+                set.add(Amenity.valueOf(token.toUpperCase()));
+            } catch (Exception ignored) {
+                System.out.println("Unknown amenity ignored: " + token);
+            }
+        }
+        return set;
     }
 }

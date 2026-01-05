@@ -8,10 +8,11 @@ public class Room {
     private final long roomId;
     private final Property property;
     private final RoomType type;
-    private final int monthlyRent;
-    private final String description;
-    private final Set<Amenity> amenities;
-    private final DateRange availability;
+
+    private int monthlyRent;
+    private String description;
+    private Set<Amenity> amenities;
+    private DateRange availability;
 
     private final List<Booking> bookings;
 
@@ -23,12 +24,11 @@ public class Room {
                 Set<Amenity> amenities,
                 DateRange availability) {
 
-        if (property == null)
-            throw new IllegalArgumentException("Property must not be null.");
-        if (monthlyRent < 0)
-            throw new IllegalArgumentException("Rent must not be negative.");
-        if (availability == null)
-            throw new IllegalArgumentException("Availability must not be null.");
+        if (property == null) throw new IllegalArgumentException("Property must not be null.");
+        if (type == null) throw new IllegalArgumentException("Room type must not be null.");
+        if (monthlyRent < 0) throw new IllegalArgumentException("Rent must not be negative.");
+        if (availability == null) throw new IllegalArgumentException("Availability must not be null.");
+        if (amenities == null) throw new IllegalArgumentException("Amenities must not be null.");
 
         this.roomId = roomId;
         this.property = property;
@@ -56,6 +56,14 @@ public class Room {
         return monthlyRent;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public Set<Amenity> getAmenities() {
+        return amenities;
+    }
+
     public DateRange getAvailability() {
         return availability;
     }
@@ -70,5 +78,25 @@ public class Room {
 
     void addBooking(Booking booking) {
         bookings.add(booking);
+    }
+
+    // --- setters to support FR-07 updates (CLI) ---
+    public void setMonthlyRent(int monthlyRent) {
+        if (monthlyRent < 0) throw new IllegalArgumentException("Rent must not be negative.");
+        this.monthlyRent = monthlyRent;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setAmenities(Set<Amenity> amenities) {
+        if (amenities == null) throw new IllegalArgumentException("Amenities must not be null.");
+        this.amenities = amenities;
+    }
+
+    public void setAvailability(DateRange availability) {
+        if (availability == null) throw new IllegalArgumentException("Availability must not be null.");
+        this.availability = availability;
     }
 }

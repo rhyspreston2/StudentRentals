@@ -76,4 +76,18 @@ public class Property {
     public double getAverageRating() {
         return ratingSummary.average();
     }
+
+    public void setAddress(String address) {
+        if (address == null || address.isBlank()) throw new IllegalArgumentException("Address must not be blank.");
+        this.address = address;
+    }
+
+    public void setCityOrArea(String cityOrArea) {
+        if (cityOrArea == null || cityOrArea.isBlank()) throw new IllegalArgumentException("City/Area must not be blank.");
+        this.cityOrArea = cityOrArea;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

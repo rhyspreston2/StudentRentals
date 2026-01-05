@@ -12,10 +12,6 @@ public class SearchService {
         this.system = system;
     }
 
-    /**
-     * Search for rooms using the provided criteria.
-     * Uses city/type indexes where possible, then applies filters.
-     */
     public List<Room> searchRooms(SearchCriteria criteria) {
         if (criteria == null) throw new IllegalArgumentException("Criteria must not be null.");
 
@@ -31,7 +27,7 @@ public class SearchService {
     }
 
     private Set<Room> getInitialCandidates(SearchCriteria criteria) {
-        // Start from the most selective index we can
+        // Start from the most selective index
         Set<Room> byCity = null;
         if (criteria.getCityOrArea() != null && !criteria.getCityOrArea().isBlank()) {
             byCity = system.getRoomsByCity(criteria.getCityOrArea());
@@ -42,9 +38,7 @@ public class SearchService {
             byType = system.getRoomsByType(criteria.getRoomType());
         }
 
-        // Combine:
         if (byCity != null && byType != null) {
-            // intersection
             Set<Room> intersection = new HashSet<>(byCity);
             intersection.retainAll(byType);
             return intersection;
@@ -53,7 +47,7 @@ public class SearchService {
         if (byCity != null) return new HashSet<>(byCity);
         if (byType != null) return new HashSet<>(byType);
 
-        // If no city/type provided, fall back to all rooms (still fine for prototype)
+        // If no params, fall back to all rooms
         return new HashSet<>(system.getAllRooms());
     }
 
@@ -70,9 +64,6 @@ public class SearchService {
         DateRange required = criteria.getRequiredPeriod();
         if (required == null) return true;
 
-        // must be within the room’s overall availability window
         return room.isWithinAvailability(required);
-        // IMPORTANT: "free from accepted bookings" is handled by BookingService,
-        // since it requires booking status checks and overlap logic.
     }
 }
