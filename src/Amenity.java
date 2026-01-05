@@ -1,12 +1,7 @@
 public enum Amenity {
     WIFI,
-    PARKING,
-    LAUNDRY,
-    GYM,
-    POOL,
-    AIR_CONDITIONING,
-    HEATING,
-    FURNISHED,
-    PET_FRIENDLY,
-    DISHWASHER
+    DESK,
+    PRIVATE_BATHROOM,
+    BILLS_INCLUDED,
+    KITCHEN_ACCESS
 }

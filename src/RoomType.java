@@ -1,5 +1,4 @@
-enum RoomType {
+public enum RoomType {
     SINGLE,
-    DOUBLE,
-    STUDIO
+    DOUBLE
 }
