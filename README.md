@@ -12,3 +12,8 @@ A command-line Java application that allows students to search for rooms, homeow
 - Login and GUI features are out of scope
 - No external libraries are used
 - Room for future expansion
+
+## Seeded Data
+Note that in StudentRentalsCLI there is a SeedDemoData() method that inputs some test data for filming the panopto video and testing features.
+
+This can be later removed for an empty start when running the system.
