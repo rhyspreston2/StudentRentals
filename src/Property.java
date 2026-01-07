@@ -32,6 +32,7 @@ public class Property {
         this.ratingSummary = new RatingSummary();
     }
 
+    //getters and setters
     public long getPropertyId() {
         return propertyId;
     }

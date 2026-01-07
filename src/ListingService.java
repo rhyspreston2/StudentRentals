@@ -4,22 +4,22 @@ public class ListingService {
 
     private final StudentRentalsSystem system;
 
-    public ListingService(StudentRentalsSystem system) {
+    public ListingService(StudentRentalsSystem system) {    //constructor for ListingService class
         if (system == null) throw new IllegalArgumentException("System must not be null.");
         this.system = system;
     }
 
-    public Property addProperty(Homeowner owner, String address, String cityOrArea, String description) {
+    public Property addProperty(Homeowner owner, String address, String cityOrArea, String description) {   // adds a property to the system
         if (owner == null) throw new IllegalArgumentException("Owner must not be null.");
         if (!owner.isActive()) throw new IllegalStateException("Homeowner account is deactivated.");
 
-        long propertyId = system.generateId();
-        Property property = new Property(propertyId, owner, address, cityOrArea, description);
+        long propertyId = system.generateId();  // generate unique ID for the property
+        Property property = new Property(propertyId, owner, address, cityOrArea, description);  // create new Property object with given details
         system.addProperty(property);
         return property;
     }
 
-    public Room addRoom(Homeowner owner,
+    public Room addRoom(Homeowner owner,    // assigns a room to a property
                         Property property,
                         RoomType type,
                         int monthlyRent,
@@ -35,15 +35,17 @@ public class ListingService {
         long roomId = system.generateId();
         Room room = new Room(roomId, property, type, monthlyRent, description, amenities, availability);
 
-        property.addRoom(room);
+        property.addRoom(room); // add room to property's collection and update in system
         system.addRoom(room);
         return room;
     }
 
 
-    public void removeProperty(Homeowner owner, long propertyId) {
+    public void removeProperty(Homeowner owner, long propertyId) {  // removes a property from the system
         Property property = system.getPropertyById(propertyId);
-        if (property == null) throw new IllegalArgumentException("Property not found: " + propertyId);
+        if (property == null){
+            throw new IllegalArgumentException("Property not found: " + propertyId);
+        }
         if (property.getOwner().getUserId() != owner.getUserId()) {
             throw new SecurityException("You do not own this property.");
         }
@@ -110,7 +112,7 @@ public class ListingService {
             throw new SecurityException("You do not own the property for this room.");
         }
 
-        if (newMonthlyRent != null) room.setMonthlyRent(newMonthlyRent);
+        if (newMonthlyRent != null) room.setMonthlyRent(newMonthlyRent);    //update any attributes that are not null
         if (newDescription != null) room.setDescription(newDescription);
         if (newAmenities != null) room.setAmenities(newAmenities);
         if (newAvailability != null) room.setAvailability(newAvailability);

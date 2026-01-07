@@ -4,9 +4,9 @@ public abstract class User {
     private final long userId;
     private String name;
     private final String email;
-    private AccountStatus status;
+    private AccountStatus status;   //attributes
 
-    protected User(long userId, String name, String email) {
+    protected User(long userId, String name, String email) {    //constructor
         if (userId <= 0) throw new IllegalArgumentException("userId must be positive.");
         if (name == null || name.isBlank()) throw new IllegalArgumentException("name must not be blank.");
         if (email == null || email.isBlank()) throw new IllegalArgumentException("email must not be blank.");
@@ -16,6 +16,7 @@ public abstract class User {
         this.email = email;
         this.status = AccountStatus.ACTIVE;
     }
+    //getters and setters
 
     public long getUserId() {
         return userId;
@@ -45,6 +46,8 @@ public abstract class User {
     public void deactivate() {
         this.status = AccountStatus.DEACTIVATED;
     }
+
+    //override mthods
 
     @Override
     public String toString() {

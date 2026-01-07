@@ -1,6 +1,8 @@
 public final class RatingSummary {
     private int totalStars;
     private int reviewCount;
+    //class to summarise ratings for a property
+    // keeps track of total stars and number of reviews to calculate average rating
 
     public void addRating(int stars) {
         if (stars < 1 || stars > 5) {

@@ -7,9 +7,9 @@ public class Booking {
     private final Room room;
     private final DateRange period;
     private BookingStatus status;
-    private final LocalDate createdAt;
+    private final LocalDate createdAt;  //initialise attributes for booking class
 
-    public Booking(long bookingId,
+    public Booking(long bookingId,  //constructor for booking class
                    Student student,
                    Room room,
                    DateRange period) {
@@ -22,9 +22,11 @@ public class Booking {
         this.student = student;
         this.room = room;
         this.period = period;
-        this.status = BookingStatus.REQUESTED;
+        this.status = BookingStatus.REQUESTED;  //uses BookingStatus enum for status
         this.createdAt = LocalDate.now();
     }
+
+    //getters and status update methods
 
     public long getBookingId() {
         return bookingId;

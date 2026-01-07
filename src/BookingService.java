@@ -11,9 +11,10 @@ public class BookingService {
         this.system = system;
     }
 
-    /**
-     * Student requests to book a room within the room's availability window.
-     * Creates a booking with status REQUESTED.
+    /*
+    Student requests to book a room within the room's availability window.
+    Creates a booking with status REQUESTED.
+    Homeowner can accept or reject later.
      */
     public Booking requestBooking(Student student, Room room, DateRange period) {
         if (student == null || room == null || period == null) {
@@ -45,9 +46,9 @@ public class BookingService {
         return booking;
     }
 
-    /**
-     * Homeowner accepts a booking request for a room they own.
-     * Re-checks overlap at accept time to prevent double booking.
+    /*
+    Homeowner accepts a booking request for a room they own.
+    Re-checks overlap at accept time to prevent double booking.
      */
     public void acceptBooking(Homeowner homeowner, long bookingId) {
         Booking booking = requireBooking(bookingId);
@@ -67,7 +68,7 @@ public class BookingService {
             throw new IllegalStateException("Only REQUESTED bookings can be accepted.");
         }
 
-        // Critical: re-check room availability against ACCEPTED bookings
+        //re-check room availability against ACCEPTED bookings
         if (!isRoomFree(room, booking.getPeriod())) {
             booking.reject(); // safe fallback to avoid double booking
             throw new IllegalStateException("Cannot accept: room conflicts with an existing accepted booking.");
@@ -76,8 +77,8 @@ public class BookingService {
         booking.accept();
     }
 
-    /**
-     * Homeowner rejects a booking request for a room they own.
+    /*
+    Homeowner rejects a booking request
      */
     public void rejectBooking(Homeowner homeowner, long bookingId) {
         Booking booking = requireBooking(bookingId);
@@ -87,7 +88,7 @@ public class BookingService {
         Room room = booking.getRoom();
         Property property = room.getProperty();
 
-        if (property.getOwner().getUserId() != homeowner.getUserId()) {
+        if (property.getOwner().getUserId() != homeowner.getUserId()) { // ensure this homeowner owns the property
             throw new SecurityException("You do not own the property for this booking.");
         }
 
@@ -98,8 +99,9 @@ public class BookingService {
         booking.reject();
     }
 
-    /**
-     * Student cancels their booking (prototype: no penalties).
+    /*
+    Student cancels their booking
+    penalties can be applied upon system extension
      */
     public void cancelBooking(Student student, long bookingId) {
         Booking booking = requireBooking(bookingId);
@@ -115,8 +117,8 @@ public class BookingService {
     }
 
     /**
-     * Checks if a room is free for the given period considering ACCEPTED bookings only.
-     * REQUESTED bookings do not block availability until accepted.
+    Checks if a room is free for the given period considering ACCEPTED bookings only.
+    Requested bookings do not block availability until accepted.
      */
     public boolean isRoomFree(Room room, DateRange requested) {
         for (Booking existing : room.getBookings()) {
@@ -128,8 +130,8 @@ public class BookingService {
         return true;
     }
 
-    /**
-     * Student: view their bookings.
+    /*
+    Student view their bookings
      */
     public List<Booking> getBookingsForStudent(Student student) {
         List<Booking> results = new ArrayList<>();
@@ -141,8 +143,8 @@ public class BookingService {
         return results;
     }
 
-    /**
-     * Homeowner: view bookings for rooms they own.
+    /*
+    Homeowner view bookings for rooms they own.
      */
     public List<Booking> getBookingsForHomeowner(Homeowner homeowner) {
         List<Booking> results = new ArrayList<>();
@@ -155,8 +157,8 @@ public class BookingService {
         return results;
     }
 
-    /**
-     * Useful for reviews: booking must have ended.
+    /*
+    Can't review if booking hasn't ended
      */
     public boolean hasBookingEnded(Booking booking) {
         LocalDate today = LocalDate.now();

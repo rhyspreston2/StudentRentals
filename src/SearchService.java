@@ -12,16 +12,16 @@ public class SearchService {
         this.system = system;
     }
 
-    public List<Room> searchRooms(SearchCriteria criteria) {
+    public List<Room> searchRooms(SearchCriteria criteria) {    // searches rooms based on criteria
         if (criteria == null) throw new IllegalArgumentException("Criteria must not be null.");
 
-        Set<Room> candidates = getInitialCandidates(criteria);
+        Set<Room> candidates = getInitialCandidates(criteria);  //gets initial candidates for filtering
 
         List<Room> results = new ArrayList<>();
         for (Room room : candidates) {
-            if (!passesPriceFilter(room, criteria)) continue;
-            if (!passesDateFilter(room, criteria)) continue;
-            results.add(room);
+            if (!passesPriceFilter(room, criteria)) continue;   //filter by price
+            if (!passesDateFilter(room, criteria)) continue;    //filter by date availability
+            results.add(room);  //adds leftover rooms to results
         }
         return results;
     }

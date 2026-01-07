@@ -4,3 +4,5 @@ public class Admin extends User {
         super(userId, name, email);
     }
 }
+
+// Admin user class no additional fields or methods for now

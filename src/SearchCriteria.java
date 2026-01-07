@@ -3,9 +3,9 @@ public class SearchCriteria {
     private final Integer minPrice;
     private final Integer maxPrice;
     private final DateRange requiredPeriod;
-    private final RoomType roomType;
+    private final RoomType roomType;    //attributes for search criteria
 
-    public SearchCriteria(String cityOrArea, Integer minPrice, Integer maxPrice,
+    public SearchCriteria(String cityOrArea, Integer minPrice, Integer maxPrice,    //constructor for search criteria
                           DateRange requiredPeriod, RoomType roomType) {
         this.cityOrArea = cityOrArea;
         this.minPrice = minPrice;
@@ -13,7 +13,7 @@ public class SearchCriteria {
         this.requiredPeriod = requiredPeriod;
         this.roomType = roomType;
     }
-
+    //getters
     public String getCityOrArea() {
         return cityOrArea;
     }

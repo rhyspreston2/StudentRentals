@@ -7,9 +7,9 @@ public class Review {
     private final Property property;
     private final int rating;
     private final String comment;
-    private final LocalDate createdAt;
+    private final LocalDate createdAt;  //initialise attributes for review class
 
-    public Review(long reviewId,
+    public Review(long reviewId,    //constructor for review class
                   Student student,
                   Property property,
                   int rating,
@@ -29,6 +29,7 @@ public class Review {
         this.comment = comment;
         this.createdAt = LocalDate.now();
     }
+    //getters
 
     public long getReviewId() {
         return reviewId;

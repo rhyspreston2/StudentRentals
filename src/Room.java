@@ -12,11 +12,11 @@ public class Room {
     private int monthlyRent;
     private String description;
     private Set<Amenity> amenities;
-    private DateRange availability;
+    private DateRange availability; //initialize attributes for Room
 
     private final List<Booking> bookings;
 
-    public Room(long roomId,
+    public Room(long roomId,    //constructor for Room
                 Property property,
                 RoomType type,
                 int monthlyRent,
@@ -28,7 +28,7 @@ public class Room {
         if (type == null) throw new IllegalArgumentException("Room type must not be null.");
         if (monthlyRent < 0) throw new IllegalArgumentException("Rent must not be negative.");
         if (availability == null) throw new IllegalArgumentException("Availability must not be null.");
-        if (amenities == null) throw new IllegalArgumentException("Amenities must not be null.");
+        if (amenities == null) throw new IllegalArgumentException("Amenities must not be null.");   //prevents nulls
 
         this.roomId = roomId;
         this.property = property;
@@ -39,6 +39,8 @@ public class Room {
         this.availability = availability;
         this.bookings = new ArrayList<>();
     }
+
+    //getters
 
     public long getRoomId() {
         return roomId;
@@ -80,7 +82,6 @@ public class Room {
         bookings.add(booking);
     }
 
-    // --- setters to support FR-07 updates (CLI) ---
     public void setMonthlyRent(int monthlyRent) {
         if (monthlyRent < 0) throw new IllegalArgumentException("Rent must not be negative.");
         this.monthlyRent = monthlyRent;

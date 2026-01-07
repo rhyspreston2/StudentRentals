@@ -4,3 +4,4 @@ public class Homeowner extends User {
         super(userId, name, email);
     }
 }
+// Homeowner user class no additional attributes or methods

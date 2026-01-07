@@ -12,30 +12,30 @@ public class StudentRentalsCLI {
     private final BookingService bookingService = new BookingService(system);
     private final ReviewService reviewService = new ReviewService(system, bookingService);
     private final AdminService adminService = new AdminService(system);
-    private final ListingService listingService = new ListingService(system);
+    private final ListingService listingService = new ListingService(system);   //initialise services
 
     private Student demoStudent;
     private Homeowner demoHomeowner;
-    private Admin demoAdmin;
+    private Admin demoAdmin;    //demo users for testing seeded in seedDemoData()
 
     public static void main(String[] args) {
-        new StudentRentalsCLI().run();
+        new StudentRentalsCLI().run();  //run the CLI
     }
 
     private void run() {
-        seedDemoData();
+        seedDemoData(); //seed demo users before any actions
 
-        try (Scanner sc = new Scanner(System.in)) {
+        try (Scanner sc = new Scanner(System.in)) { //scanner for user input
             boolean running = true;
             while (running) {
-                System.out.println("\n=== StudentRentals (CLI) ===");
+                System.out.println("\n=== StudentRentals (CLI) ===");   //menu to choose user type
                 System.out.println("1) Continue as Student");
                 System.out.println("2) Continue as Homeowner");
                 System.out.println("3) Continue as Admin");
                 System.out.println("0) Exit");
                 System.out.print("Choose an option: ");
 
-                String choice = sc.nextLine().trim();
+                String choice = sc.nextLine().trim();   //handle user choice
                 switch (choice) {
                     case "1" -> studentMenu(sc, demoStudent);
                     case "2" -> homeownerMenu(sc, demoHomeowner);
@@ -47,20 +47,20 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void seedDemoData() {
+    private void seedDemoData() {   //create demo users for testing
         demoStudent = new Student(system.generateId(), "Rhys Preston", "prestonr@cardiff.ac.uk",
                 "Cardiff University", "C24030492", true);
         demoHomeowner = new Homeowner(system.generateId(), "Homeowner", "homeowner@example.com");
         demoAdmin = new Admin(system.generateId(), "CPS Homes", "admin@CPS.co.uk");
 
+
         system.addUser(demoStudent);
         system.addUser(demoHomeowner);
-        system.addUser(demoAdmin);
+        system.addUser(demoAdmin);  //add demo users to system
 
     }
 
-    // ---------------- Student Menu ----------------
-
+    //Student Menu
     private void studentMenu(Scanner sc, Student student) {
         boolean back = false;
         while (!back) {
@@ -84,8 +84,8 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void studentSearchAndRequest(Scanner sc, Student student) {
-        System.out.print("City/Area (e.g., London): ");
+    private void studentSearchAndRequest(Scanner sc, Student student) { //base for search CLI
+        System.out.print("City/Area (e.g., Cardiff): ");
         String city = sc.nextLine().trim();
 
         System.out.print("Min price (blank for none): ");
@@ -124,10 +124,10 @@ public class StudentRentalsCLI {
                     " | " + p.getCityOrArea() +
                     " | " + r.getType() +
                     " | £" + r.getMonthlyRent() +
-                    " | Property avg rating: " + String.format("%.2f", p.getAverageRating()));
+                    " | Property avg rating: " + String.format("%.2f", p.getAverageRating()));  //display search results based off filtered results
         }
 
-        System.out.print("Select a room number to request booking (0 to cancel): ");
+        System.out.print("Select a room number to request booking (0 to cancel): ");    //final step to request booking
         int idx = parseInt(sc.nextLine().trim(), 0);
         if (idx <= 0 || idx > results.size()) return;
 
@@ -146,7 +146,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void studentCancelBooking(Scanner sc, Student student) {
+    private void studentCancelBooking(Scanner sc, Student student) {    //cancel booking CLI
         printBookings(bookingService.getBookingsForStudent(student));
         System.out.print("Enter bookingId to cancel: ");
         long id = parseLong(sc.nextLine().trim(), -1);
@@ -160,7 +160,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void studentLeaveReview(Scanner sc, Student student) {
+    private void studentLeaveReview(Scanner sc, Student student) {  //leave review CLI
         printBookings(bookingService.getBookingsForStudent(student));
         System.out.print("Enter bookingId to review: ");
         long bookingId = parseLong(sc.nextLine().trim(), -1);
@@ -182,7 +182,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    // ---------------- Homeowner Menu ----------------
+    //Homeowner Menu
 
     private void homeownerMenu(Scanner sc, Homeowner homeowner) {
         boolean back = false;
@@ -203,7 +203,7 @@ public class StudentRentalsCLI {
             System.out.print("Choose: ");
 
             String choice = sc.nextLine().trim();
-            switch (choice) {
+            switch (choice) {   //handle homeowner choice
                 case "1" -> homeownerAddProperty(sc, homeowner);
                 case "2" -> homeownerViewMyListings(homeowner);
                 case "3" -> homeownerAddRoom(sc, homeowner);
@@ -221,13 +221,13 @@ public class StudentRentalsCLI {
         }
     }
 
-    private List<Property> getMyProperties(Homeowner homeowner) {
+    private List<Property> getMyProperties(Homeowner homeowner) {   //get properties owned by homeowner for listing
         return system.getAllProperties().stream()
                 .filter(p -> p.getOwner().getUserId() == homeowner.getUserId())
                 .toList();
     }
 
-    private void homeownerAddProperty(Scanner sc, Homeowner homeowner) {
+    private void homeownerAddProperty(Scanner sc, Homeowner homeowner) {    //add property CLI
         System.out.print("Address: ");
         String address = sc.nextLine().trim();
 
@@ -245,7 +245,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerViewMyListings(Homeowner homeowner) {
+    private void homeownerViewMyListings(Homeowner homeowner) { //view listings CLI template
         List<Property> props = getMyProperties(homeowner);
         if (props.isEmpty()) {
             System.out.println("You have no properties yet.");
@@ -309,7 +309,7 @@ public class StudentRentalsCLI {
         return rooms.get(idx - 1);
     }
 
-    private void homeownerAddRoom(Scanner sc, Homeowner homeowner) {
+    private void homeownerAddRoom(Scanner sc, Homeowner homeowner) {    //add room CLI
         Property property = chooseProperty(sc, homeowner);
         if (property == null) return;
 
@@ -345,7 +345,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerUpdateProperty(Scanner sc, Homeowner homeowner) {
+    private void homeownerUpdateProperty(Scanner sc, Homeowner homeowner) {  //update property CLI
         Property property = chooseProperty(sc, homeowner);
         if (property == null) return;
 
@@ -367,7 +367,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerUpdateRoom(Scanner sc, Homeowner homeowner) {
+    private void homeownerUpdateRoom(Scanner sc, Homeowner homeowner) { //update room CLI
         Room room = chooseRoom(sc, homeowner);
         if (room == null) return;
 
@@ -379,7 +379,7 @@ public class StudentRentalsCLI {
 
         System.out.print("New description (current: " + room.getDescription() + "): ");
         String desc = sc.nextLine();
-        if (desc != null && desc.isBlank()) desc = null; // treat blank as "no change"
+        if (desc != null && desc.isBlank()) desc = null; // treat blank as no change for ease
 
         System.out.print("New amenities (comma separated, current: " + room.getAmenities() + "): ");
         String amenityLine = sc.nextLine().trim();
@@ -404,7 +404,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerRemoveProperty(Scanner sc, Homeowner homeowner) {
+    private void homeownerRemoveProperty(Scanner sc, Homeowner homeowner) { //remove property CLI, removes all rooms within too
         Property property = chooseProperty(sc, homeowner);
         if (property == null) return;
 
@@ -416,7 +416,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerRemoveRoom(Scanner sc, Homeowner homeowner) {
+    private void homeownerRemoveRoom(Scanner sc, Homeowner homeowner) { //remove room from property CLI
         Room room = chooseRoom(sc, homeowner);
         if (room == null) return;
 
@@ -428,7 +428,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerViewRequests(Homeowner homeowner) {
+    private void homeownerViewRequests(Homeowner homeowner) {   //view booking requests CLI
         List<Booking> bookings = bookingService.getBookingsForHomeowner(homeowner);
         System.out.println("\nRequested bookings:");
         boolean any = false;
@@ -444,7 +444,7 @@ public class StudentRentalsCLI {
         if (!any) System.out.println("(none)");
     }
 
-    private void homeownerAccept(Scanner sc, Homeowner homeowner) {
+    private void homeownerAccept(Scanner sc, Homeowner homeowner) { //accept booking CLI
         homeownerViewRequests(homeowner);
         System.out.print("Enter bookingId to accept: ");
         long id = parseLong(sc.nextLine().trim(), -1);
@@ -458,7 +458,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void homeownerReject(Scanner sc, Homeowner homeowner) {
+    private void homeownerReject(Scanner sc, Homeowner homeowner) { //reject booking CLI
         homeownerViewRequests(homeowner);
         System.out.print("Enter bookingId to reject: ");
         long id = parseLong(sc.nextLine().trim(), -1);
@@ -472,7 +472,7 @@ public class StudentRentalsCLI {
         }
     }
 
-    // ---------------- Admin Menu ----------------
+    //Admin Menu
 
     private void adminMenu(Scanner sc, Admin admin) {
         boolean back = false;

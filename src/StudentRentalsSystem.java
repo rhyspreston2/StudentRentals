@@ -1,19 +1,16 @@
 import java.util.*;
 
-/**
- * In-memory data store + ID generation + basic indexes.
- * No external libraries, CLI-friendly, designed to be used by services.
- */
+
 public class StudentRentalsSystem {
 
-    // --- ID generation ---
+    //ID generation
     private long nextId = 1;
 
     public long generateId() {
         return nextId++;
     }
 
-    // --- Core storage ---
+    //storage
     private final Map<Long, User> usersById = new HashMap<>();
     private final Map<String, User> usersByEmail = new HashMap<>();
 
@@ -22,13 +19,11 @@ public class StudentRentalsSystem {
     private final Map<Long, Booking> bookingsById = new HashMap<>();
     private final Map<Long, Review> reviewsById = new HashMap<>();
 
-    // --- Search indexes (for efficiency) ---
-    // cityOrArea (lowercased) -> rooms
+
     private final Map<String, Set<Room>> roomsByCity = new HashMap<>();
-    // type -> rooms
     private final Map<RoomType, Set<Room>> roomsByType = new HashMap<>();
 
-    // ---------------- USERS ----------------
+    //USERS
 
     public void addUser(User user) {
         Objects.requireNonNull(user, "User must not be null.");
@@ -57,7 +52,7 @@ public class StudentRentalsSystem {
         return new ArrayList<>(usersById.values());
     }
 
-    // ---------------- PROPERTIES ----------------
+    //PROPERTIES
 
     public void addProperty(Property property) {
         Objects.requireNonNull(property, "Property must not be null.");
@@ -78,7 +73,7 @@ public class StudentRentalsSystem {
     public void removeProperty(Property property) {
         Objects.requireNonNull(property, "Property must not be null.");
 
-        // Remove rooms belonging to this property from indexes and rooms map
+        // Remove rooms belonging to this property as not needed anymore
         for (Room room : property.getRooms()) {
             removeRoom(room);
         }
@@ -86,7 +81,7 @@ public class StudentRentalsSystem {
         propertiesById.remove(property.getPropertyId());
     }
 
-    // ---------------- ROOMS ----------------
+    //ROOMS
 
     public void addRoom(Room room) {
         Objects.requireNonNull(room, "Room must not be null.");
@@ -96,11 +91,9 @@ public class StudentRentalsSystem {
 
         roomsById.put(room.getRoomId(), room);
 
-        // Index by city
         String cityKey = room.getProperty().getCityOrArea().toLowerCase();
         roomsByCity.computeIfAbsent(cityKey, k -> new HashSet<>()).add(room);
 
-        // Index by type
         roomsByType.computeIfAbsent(room.getType(), k -> new HashSet<>()).add(room);
     }
 
@@ -142,7 +135,7 @@ public class StudentRentalsSystem {
         }
     }
 
-    // ---------------- BOOKINGS ----------------
+    //BOOKINGS
 
     public void addBooking(Booking booking) {
         Objects.requireNonNull(booking, "Booking must not be null.");
@@ -160,7 +153,7 @@ public class StudentRentalsSystem {
         return new ArrayList<>(bookingsById.values());
     }
 
-    // ---------------- REVIEWS ----------------
+    //REVIEWS
 
     public void addReview(Review review) {
         Objects.requireNonNull(review, "Review must not be null.");

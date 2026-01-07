@@ -5,3 +5,4 @@ public enum Amenity {
     BILLS_INCLUDED,
     KITCHEN_ACCESS
 }
+//preset values for amenities, can be added to in future
