@@ -47,18 +47,65 @@ public class StudentRentalsCLI {
         }
     }
 
-    private void seedDemoData() {   //create demo users for testing
-        demoStudent = new Student(system.generateId(), "Rhys Preston", "prestonr@cardiff.ac.uk",
-                "Cardiff University", "C24030492", true);
-        demoHomeowner = new Homeowner(system.generateId(), "Homeowner", "homeowner@example.com");
-        demoAdmin = new Admin(system.generateId(), "CPS Homes", "admin@CPS.co.uk");
+    private void seedDemoData() {   // create demo data for video and testing, can be removed
+    demoStudent = new Student(system.generateId(), "Rhys Preston", "prestonr@cardiff.ac.uk",
+            "Cardiff University", "C24030492", true);
+    demoHomeowner = new Homeowner(system.generateId(), "Homeowner", "homeowner@example.com");
+    demoAdmin = new Admin(system.generateId(), "CPS Homes", "admin@CPS.co.uk");
 
+    system.addUser(demoStudent);
+    system.addUser(demoHomeowner);
+    system.addUser(demoAdmin);  // add demo users to system
 
-        system.addUser(demoStudent);
-        system.addUser(demoHomeowner);
-        system.addUser(demoAdmin);  //add demo users to system
+    // Create demo property
+    Property demoProperty = new Property(
+            system.generateId(),
+            demoHomeowner,
+            "Maindy Road",
+            "Cardiff",
+            "Student-friendly property close to student union and Lidl."
+    );
 
-    }
+    system.addProperty(demoProperty);
+
+    // Create demo rooms
+    Room singleRoom = new Room(
+            system.generateId(),
+            demoProperty,
+            RoomType.SINGLE,
+            550,
+            "Single room with desk and WiFi",
+            EnumSet.of(Amenity.WIFI, Amenity.DESK, Amenity.BILLS_INCLUDED),
+            new DateRange(LocalDate.now().plusDays(1), LocalDate.now().plusMonths(6))
+    );
+
+    Room doubleRoom = new Room(
+            system.generateId(),
+            demoProperty,
+            RoomType.DOUBLE,
+            700,
+            "Spacious double room",
+            EnumSet.of(Amenity.WIFI, Amenity.DESK, Amenity.KITCHEN_ACCESS),
+            new DateRange(LocalDate.now().plusDays(1), LocalDate.now().plusMonths(6))
+    );
+
+    demoProperty.addRoom(singleRoom);
+    demoProperty.addRoom(doubleRoom);
+
+    system.addRoom(singleRoom);
+    system.addRoom(doubleRoom);
+
+    // Create a demo booking request
+    Booking demoBooking = new Booking(
+            system.generateId(),
+            demoStudent,
+            singleRoom,
+            new DateRange(LocalDate.now().plusDays(7), LocalDate.now().plusMonths(2))
+    );
+
+    system.addBooking(demoBooking);
+    singleRoom.addBooking(demoBooking);
+}
 
     //Student Menu
     private void studentMenu(Scanner sc, Student student) {
