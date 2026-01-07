@@ -1,18 +1,14 @@
-## Getting Started
+# StudentRentals CLI Prototype
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+## Description
+A command-line Java application that allows students to search for rooms, homeowners to manage properties and bookings, and administrators to moderate users and listings.
 
-## Folder Structure
+## How to Run
+1. Open the project in an IDE
+2. Run the `StudentRentalsCLI` class
+3. Follow the menu options to navigate the system
 
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## Notes
+- Login and GUI features are out of scope
+- No external libraries are used
+- Room for future expansion
